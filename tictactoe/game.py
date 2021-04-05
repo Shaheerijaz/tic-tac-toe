@@ -38,3 +38,24 @@ def outcome(board):
     if line:
         return board[line[0]]
     return "draw" if not available_moves(board) else None
+
+
+def validate_board(board):
+    if not isinstance(board, list) or len(board) != 9:
+        raise ValueError("The board must contain nine cells.")
+    if any(cell not in (EMPTY, *MARKS) for cell in board):
+        raise ValueError("Cells must be X, O, or empty.")
+    xs, os = board.count("X"), board.count("O")
+    if xs not in (os, os + 1):
+        raise ValueError("Invalid turn counts.")
+    winners = {board[a] for a, b, c in WIN_LINES
+               if board[a] and board[a] == board[b] == board[c]}
+    if len(winners) > 1:
+        raise ValueError("Both players cannot win.")
+    if ("X" in winners and xs != os + 1) or ("O" in winners and xs != os):
+        raise ValueError("Invalid winning position.")
+
+
+def next_player(board):
+    validate_board(board)
+    return "X" if board.count("X") == board.count("O") else "O"
