@@ -59,3 +59,19 @@ def validate_board(board):
 def next_player(board):
     validate_board(board)
     return "X" if board.count("X") == board.count("O") else "O"
+
+
+def play_move(board, index, mark):
+    """Return a new board, rejecting illegal moves without mutation."""
+    validate_board(board)
+    if type(index) is not int or not 0 <= index < 9:
+        raise ValueError("Choose a cell from 0 to 8.")
+    if outcome(board) is not None:
+        raise ValueError("This round has ended. Start a new round.")
+    if mark != next_player(board):
+        raise ValueError("It is not that player's turn.")
+    if board[index] != EMPTY:
+        raise ValueError("That cell is already occupied.")
+    updated = board.copy()
+    updated[index] = mark
+    return updated
