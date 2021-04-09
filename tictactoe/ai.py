@@ -3,16 +3,25 @@ from math import inf
 from .game import available_moves, next_player, opponent, outcome, validate_board
 
 
-def minimax(board, turn, ai, depth=0):
+def minimax(board, turn, ai, depth=0, alpha=-inf, beta=inf):
     result = outcome(board)
     if result is not None:
         return 0 if result == "draw" else (10 - depth if result == ai else depth - 10)
-    scores = []
+    maximizing = turn == ai
+    value = -inf if maximizing else inf
     for index in available_moves(board):
         child = board.copy()
         child[index] = turn
-        scores.append(minimax(child, opponent(turn), ai, depth + 1))
-    return max(scores) if turn == ai else min(scores)
+        score = minimax(child, opponent(turn), ai, depth + 1, alpha, beta)
+        if maximizing:
+            value = max(value, score)
+            alpha = max(alpha, value)
+        else:
+            value = min(value, score)
+            beta = min(beta, value)
+        if alpha >= beta:
+            break
+    return value
 
 
 def best_move(board, ai):
