@@ -1,6 +1,15 @@
 """Depth-aware minimax from the computer player's perspective."""
 from math import inf
+from dataclasses import dataclass
+from time import perf_counter
 from .game import next_player, opponent, outcome, validate_board
+
+
+@dataclass
+class SearchStats:
+    nodes: int = 0
+    cutoffs: int = 0
+    elapsed_ms: float = 0
 
 
 # Center, corners, then edges make pruning more effective and ties stable.
@@ -11,7 +20,9 @@ def ordered_moves(board):
     return [index for index in MOVE_ORDER if not board[index]]
 
 
-def minimax(board, turn, ai, depth=0, alpha=-inf, beta=inf):
+def minimax(board, turn, ai, depth=0, alpha=-inf, beta=inf, stats=None):
+    if stats is not None:
+        stats.nodes += 1
     result = outcome(board)
     if result is not None:
         return 0 if result == "draw" else (10 - depth if result == ai else depth - 10)
@@ -20,7 +31,7 @@ def minimax(board, turn, ai, depth=0, alpha=-inf, beta=inf):
     for index in ordered_moves(board):
         child = board.copy()
         child[index] = turn
-        score = minimax(child, opponent(turn), ai, depth + 1, alpha, beta)
+        score = minimax(child, opponent(turn), ai, depth + 1, alpha, beta, stats)
         if maximizing:
             value = max(value, score)
             alpha = max(alpha, value)
@@ -28,11 +39,17 @@ def minimax(board, turn, ai, depth=0, alpha=-inf, beta=inf):
             value = min(value, score)
             beta = min(beta, value)
         if alpha >= beta:
+            if stats is not None:
+                stats.cutoffs += 1
             break
     return value
 
 
-def best_move(board, ai):
+def best_move(board, ai, stats=None):
+    started = perf_counter()
+    if stats is not None:
+        stats.nodes = stats.cutoffs = 0
+        stats.elapsed_ms = 0
     validate_board(board)
     opponent(ai)
     if outcome(board) is not None:
@@ -43,7 +60,9 @@ def best_move(board, ai):
     for index in ordered_moves(board):
         child = board.copy()
         child[index] = ai
-        score = minimax(child, opponent(ai), ai, 1)
+        score = minimax(child, opponent(ai), ai, 1, stats=stats)
         if score > best:
             best, choice = score, index
+    if stats is not None:
+        stats.elapsed_ms = round((perf_counter() - started) * 1000, 2)
     return choice
