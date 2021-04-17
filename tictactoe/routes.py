@@ -1,6 +1,6 @@
 """JSON game endpoints and page routes."""
 from flask import Blueprint, jsonify, session, request
-from .service import new_game
+from .service import new_game, take_turn
 
 bp = Blueprint("game", __name__)
 
@@ -35,3 +35,11 @@ def start_game():
     scores = None if reset else current_game()["scores"]
     session["game"] = new_game(human, scores)
     return jsonify(session["game"])
+
+
+@bp.post("/api/move")
+def move():
+    data = json_object()
+    game = take_turn(current_game(), data.get("index"))
+    session["game"] = game
+    return jsonify(game)
