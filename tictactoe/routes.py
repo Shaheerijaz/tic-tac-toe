@@ -1,4 +1,5 @@
 """JSON game endpoints and page routes."""
+import secrets
 from flask import Blueprint, jsonify, session, request
 from .service import new_game, take_turn
 
@@ -13,7 +14,11 @@ def current_game():
 
 @bp.get("/api/game")
 def get_game():
-    return jsonify(current_game())
+    game = dict(current_game())
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(32)
+    game["csrf_token"] = session["csrf_token"]
+    return jsonify(game)
 
 
 def json_object():
@@ -43,3 +48,29 @@ def move():
     game = take_turn(current_game(), data.get("index"))
     session["game"] = game
     return jsonify(game)
+
+
+@bp.before_request
+def check_token():
+    if request.method == "POST":
+        token = session.get("csrf_token")
+        supplied = request.headers.get("X-CSRF-Token", "")
+        if not token or not secrets.compare_digest(token, supplied):
+            return jsonify(error="Session expired. Reload the page and try again."), 403
+
+
+@bp.app_errorhandler(ValueError)
+def invalid_move(error):
+    return jsonify(error=str(error)), 400
+
+
+@bp.app_errorhandler(413)
+def too_large(error):
+    return jsonify(error="Request is too large."), 413
+
+
+@bp.after_request
+def no_cache(response):
+    if request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
