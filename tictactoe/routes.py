@@ -1,6 +1,6 @@
 """JSON game endpoints and page routes."""
 import secrets
-from flask import Blueprint, jsonify, session, request
+from flask import Blueprint, jsonify, session, request, current_app, abort, render_template
 from .service import new_game, take_turn
 
 bp = Blueprint("game", __name__)
@@ -22,6 +22,8 @@ def get_game():
 
 
 def json_object():
+    if (request.content_length or 0) > current_app.config["MAX_CONTENT_LENGTH"]:
+        abort(413)
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
         raise ValueError("Send a JSON object.")
