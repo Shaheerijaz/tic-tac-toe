@@ -76,3 +76,8 @@ def no_cache(response):
     if request.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
     return response
+
+
+@bp.get("/")
+def index():
+    return render_template("index.html")

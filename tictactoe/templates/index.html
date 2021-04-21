@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ee">
+  <title>Three in a row · Tic Tac Toe</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='game.js') }}" defer></script>
+</head>
+<body>
+  <main>
+    <header><a class="wordmark" href="/">◈ &nbsp; LITTLE GAMES LAB</a><span class="edition">01 / TIC TAC TOE</span></header>
+    <section class="intro"><p class="eyebrow">A CLASSIC GAME. A CLEVER OPPONENT.</p><h1>Three in a row<span>.</span></h1><p>You know the rules. Can you find the perfect move?</p></section>
+    <div class="layout">
+      <section class="game-panel" aria-label="Tic Tac Toe game">
+        <div class="round-heading"><span class="pill">YOU vs COMPUTER</span><span id="turn-label">X GOES FIRST</span></div>
+        <h2 id="status" role="status" aria-live="polite">Loading your game…</h2>
+        <p id="status-detail">Line up three marks horizontally, vertically, or diagonally.</p>
+        <div id="board" class="board" role="group" aria-label="Game board">
+          {% for index in range(9) %}<button class="cell" data-index="{{ index }}" aria-label="Row {{ index // 3 + 1 }}, column {{ index % 3 + 1 }}, empty" disabled></button>{% endfor %}
+        </div>
+        <p id="error" class="error" role="alert" hidden></p>
+        <div class="game-actions"><button id="new-round" class="primary" disabled>New round <span aria-hidden="true">↗</span></button><button id="retry" hidden>Reconnect</button></div>
+        <p class="quiet">Perfect play ends in a draw. That’s a win in our book.</p>
+      </section>
+      <aside>
+        <section class="side-card"><p class="eyebrow">MAKE YOUR MARK</p><h2>Pick a side.</h2><div class="symbol-picker" role="group" aria-label="Your symbol"><button data-symbol="X" aria-pressed="true" disabled><strong>X</strong><span>You go first</span></button><button data-symbol="O" aria-pressed="false" disabled><strong>O</strong><span>Computer goes first</span></button></div><p class="quiet">Changing sides starts a fresh round.</p></section>
+        <section class="side-card"><div class="card-heading"><p class="eyebrow">THIS SESSION</p><button id="reset-scores" class="text-button" disabled>Reset</button></div><div class="scoreboard"><div><strong id="score-human">0</strong><span>You</span></div><div><strong id="score-draw">0</strong><span>Draws</span></div><div><strong id="score-ai">0</strong><span>Computer</span></div></div></section>
+        <section class="side-card algorithm"><p class="eyebrow">UNDER THE HOOD</p><h2>A few moves ahead.</h2><p>The computer uses <strong>minimax with alpha-beta pruning</strong> to choose its best move.</p><div id="search-stats" class="search-stats"><div><strong id="nodes">—</strong><span>Nodes visited</span></div><div><strong id="cutoffs">—</strong><span>Cutoffs</span></div><div><strong id="elapsed">—</strong><span>Search time</span></div></div><details><summary>How does it work?</summary><p>Minimax explores possible futures: the computer maximizes its score and assumes you minimize it. Alpha and beta track the best guarantees for each player. When a branch cannot improve the decision, the search skips the remaining alternatives.</p><p>A win scores 10 minus its depth, a loss scores depth minus 10, and a draw scores 0. This favors quicker wins and delays unavoidable losses. Cutoffs count pruning events, not skipped nodes. Statistics describe the last computer move.</p></details></section>
+      </aside>
+    </div>
+    <footer><span>SMALL BOARD. BIG POSSIBILITIES.</span><span>Built with Flask · Powered by logic</span></footer>
+    <noscript>This game requires JavaScript. Enable it and reload to play.</noscript>
+  </main>
+</body>
+</html>
