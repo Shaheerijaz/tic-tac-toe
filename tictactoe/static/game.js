@@ -64,3 +64,8 @@ async function update(url, data) {
 
 retry.addEventListener("click", () => update("/api/game"));
 update("/api/game");
+
+cells.forEach(cell => cell.addEventListener("click", () => {
+  if (!state || state.result || busy) return;
+  update("/api/move", {index: Number(cell.dataset.index)});
+}));
