@@ -69,3 +69,11 @@ cells.forEach(cell => cell.addEventListener("click", () => {
   if (!state || state.result || busy) return;
   update("/api/move", {index: Number(cell.dataset.index)});
 }));
+
+newRound.addEventListener("click", () => update("/api/new", {human: state.human}));
+symbols.forEach(button => button.addEventListener("click", () => {
+  if (button.dataset.symbol !== state.human) {
+    update("/api/new", {human: button.dataset.symbol});
+  }
+}));
+resetScores.addEventListener("click", () => update("/api/new", {human: state.human, reset_scores: true}));
