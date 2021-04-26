@@ -25,6 +25,12 @@ function render() {
     button.disabled = busy;
   });
   newRound.disabled = resetScores.disabled = busy;
+  ["human", "draw", "ai"].forEach(key => {
+    document.querySelector(`#score-${key}`).textContent = state.scores[key];
+  });
+  document.querySelector("#nodes").textContent = state.stats.nodes ? state.stats.nodes.toLocaleString() : "—";
+  document.querySelector("#cutoffs").textContent = state.stats.nodes ? state.stats.cutoffs.toLocaleString() : "—";
+  document.querySelector("#elapsed").textContent = state.stats.nodes ? `${state.stats.elapsed_ms} ms` : "—";
   const message = busy ? "Thinking it through…" : state.result === "draw" ? "A perfect stalemate." :
     state.result === state.human ? "Three in a row. You win!" : state.result ? "The computer takes this one." : "Your move.";
   document.querySelector("#status").textContent = message;
